@@ -4,30 +4,32 @@ package com.gabriel.contasapi.controller;
 import java.util.ArrayList;
 import java.util.List;
 import com.gabriel.contasapi.model.Conta;
+import com.gabriel.contasapi.service.ContaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController //Marca a classe como uma CONTROLLER | @RestController: annotation
-@RequestMapping("contas") // anotacao define o endereço do controller base na classe, evitando que cada endpoint repita o ("/contas")
+@RequestMapping("/contas") // anotacao define o endereço do controller base na classe, evitando que cada endpoint repita o ("/contas")
 public class ContaController {
 
-    private List<Conta> contas = new ArrayList<>(); // É um atributo do Controller que possibilita o get e post trabalhar na lista
+    //private List<Conta> contas = new ArrayList<>(); // É um atributo do Controller que possibilita o get e post trabalhar na lista
 
+    // Criando a dependencia
+    private final ContaService contaService;
 
-    public ContaController() {
-        contas.add(new Conta(1l, "Conta-Corrente", "Gabriel", 9959.53));
-        contas.add(new Conta(2l, "Conta-Poupança", "Maria", 2500));
+    //Injetando a depedencia
+    public ContaController(ContaService contaService) {
+        this.contaService = contaService;
+
     }
-
 
     @GetMapping// Quando chegar a requisicao em /contas (aqui), execute e retorne buscarContas()
     public List<Conta> buscarContas() {
-
-        return contas; //Retorna os objetos da lista do controller ( objetos )
-
+        return contaService.listarContas();
+        //return contas; //Retorna os objetos da lista do controller ( objetos )
     }
 
-    ;
+
 
       /*
 
@@ -55,16 +57,10 @@ public class ContaController {
     //Nova Assinatura: ResponseEntity<> --> Esse metodo retorna uma resposta HTTP que pode carregar uma Conta
     @GetMapping("/{id}")
     public ResponseEntity<Conta> buscarId(@PathVariable long id) {
-
-        for (Conta conta : contas) {
-
-            if (conta.getId() == id) {
-                return ResponseEntity.ok(conta); //Se ok, devolva essa conta no corpo com status 200 ok
-            }
-
-        }
-        return ResponseEntity.notFound().build(); //senao achar o id devolva uma notFound 404 sem objeto no corpo
+        return ContaService.buscarPorId(id); //senao achar o id devolva uma notFound 404 sem objeto no corpo
     }
+
+
 
 
     //Atualizar (Update) dados que vem em json, é convertido para objeto e é alterado os valores do objeto.
