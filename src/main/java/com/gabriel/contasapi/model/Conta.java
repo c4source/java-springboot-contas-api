@@ -20,7 +20,7 @@ public class Conta {
     }
 
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -36,7 +36,7 @@ public class Conta {
         return saldo;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

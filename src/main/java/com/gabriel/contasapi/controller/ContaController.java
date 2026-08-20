@@ -1,13 +1,12 @@
 package com.gabriel.contasapi.controller;
 
 
-import java.util.ArrayList;
-import java.util.List;
 import com.gabriel.contasapi.model.Conta;
 import com.gabriel.contasapi.service.ContaService;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController //Marca a classe como uma CONTROLLER | @RestController: annotation
 @RequestMapping("/contas") // anotacao define o endereço do controller base na classe, evitando que cada endpoint repita o ("/contas")
@@ -16,7 +15,10 @@ public class ContaController {
     //private List<Conta> contas = new ArrayList<>(); // É um atributo do Controller que possibilita o get e post trabalhar na lista
 
     // Criando a dependencia
+    //ContaController precisa de ContaService
+    //Espring vai fornercer o objeto
     private final ContaService contaService;
+
 
     //Injetando a depedencia
     public ContaController(ContaService contaService) {
@@ -24,15 +26,14 @@ public class ContaController {
 
     }
 
+    //GET - READ --> Leitura simples sem buscar por ID.
     @GetMapping// Quando chegar a requisicao em /contas (aqui), execute e retorne buscarContas()
     public List<Conta> buscarContas() {
         return contaService.listarContas();
         //return contas; //Retorna os objetos da lista do controller ( objetos )
     }
 
-
       /*
-
         Vamos retornar um OBJETO do tipo CONTA
 
         Conta conta = new Conta (1L, "Conta Corrente", "Gabriel", 9959.53);
@@ -40,7 +41,6 @@ public class ContaController {
 
 
         return List.of(conta, conta2);
-
        */
 
     @PostMapping //Post: criar/enviar uma conta.
@@ -53,16 +53,12 @@ public class ContaController {
         }
         return ResponseEntity.notFound().build();
 
-
-
         /*Adiciona o objeto à lista e o armazena
         contas.add(conta);
 
         return conta;
-
          */
     }
-
 
     //Agora nossa Controller, vai apenas pegar o id e chamar a função que está dentro da service.
     //A controller agora só responsável por receber e enviar as requisicoes.
@@ -79,25 +75,32 @@ public class ContaController {
 
         }
         return ResponseEntity.notFound().build(); //senao achar o id devolva uma notFound 404 sem objeto no corpo
-
     }
 
     //Atualizar (Update) dados que vem em json, é convertido para objeto e é alterado os valores do objeto.
-    /*@PutMapping("/{id}")
-    public ResponseEntity<Conta> atualizarDados(@PathVariable long id, @RequestBody Conta conta){ //ParthVariable Recebe dados da URL ex (id)
+    @PutMapping("/{id}")
+    public ResponseEntity<Conta> atualizarDados(@PathVariable long id, @RequestBody Conta conta) { //ParthVariable Recebe dados da URL ex (id)
 
-        for (Conta i : contas) {
+        Conta contaAtualizada = contaService.atualizar(id, conta);
 
-            if(i.getId() == id) {
-                i.setNomeConta(conta.getNomeConta());  //Aleterando os valores do objeto atraves do set e getter
-                i.setTitular(conta.getTitular());
-                i.setSaldo(conta.getSaldo());
-                return ResponseEntity.ok(conta); //Se for encontrado retorne 200 Atraves da anotacao ResponseEntity
-            }
+        if (contaAtualizada != null) {
+            return ResponseEntity.ok(conta); //Se for encontrado retorne 200 Atraves da anotacao ResponseEntity
         }
         return ResponseEntity.notFound().build(); // Senao responda 404 notfound.
+
     }
 
-     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Conta> deletarConta(@PathVariable long id) {
+
+        Conta contaDeletada = contaService.deletarConta(id);
+
+        if(contaDeletada != null) {
+            return ResponseEntity.ok(contaDeletada);
+        }
+        return ResponseEntity.notFound().build();
+
+    }
+
 
 }
