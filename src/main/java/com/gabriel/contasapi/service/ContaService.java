@@ -4,19 +4,23 @@ import com.gabriel.contasapi.model.Conta;
 import com.gabriel.contasapi.repository.ContaRepository;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
+import java.util.Optional;
+
 import java.util.List;
 
 
 //ContaService é uma depedencia de ContaController
-// ContaController depende da ContaService para trabalhar
+//ContaController depende da ContaService para trabalhar
 
 
 @Service // Anotacao que diz que está classe é uma service
 public class ContaService {
 
-
+    //Criando a depedencia.
     private final ContaRepository contaRepository;
 
+    //Injetando dependencia
     public ContaService(ContaRepository contaRepository) {
         this.contaRepository = contaRepository;
     }
@@ -24,19 +28,21 @@ public class ContaService {
 
     //GET- read --> retorna uma lista de contas --> versao antiga
     //Agora contaRepository retorna contaRepository.
+    //Agora com os dados persistidos com o postgreeSQL
+    //O JPA/Hibernate abstrai boa parte do crude e já cria as tabelas SQL.
     public List<Conta> listarContas(){
-         return contaRepository.listarContas(); // Leia: Repository busque um dado para mim e me devolva
+         return contaRepository.findAll(); // Leia: Repository busque um dado para mim e me devolva
 
      }
      //GET - READ
      //Service get por id --> Pega o id que o cliente envia, verifica se existe e retorna conta.
-     public Conta buscarPorId(long id ){
-        return contaRepository.buscarId(id);
+     public Optional<Conta> buscarPorId(Long id ){
+        return contaRepository.findById(id);
     }
 
 
     public Conta cadastrar(Conta conta) {
-        return contaRepository.cadastrar(conta);
+        return contaRepository.save(conta);
     }
 
 
@@ -55,8 +61,31 @@ public class ContaService {
 
 
     //UPDATE - PUT
-    public Conta atualizar(long id,  Conta conta) {
-        return contaRepository.atualizar(id, conta);
+    public Conta atualizar(Long id,  Conta novosDados) {
+
+        //Se existir o objeto correspondente ao ID, colocamos dentro de contaEcontrada. É um tipo Optional (Pode existir ou não).
+        Optional<Conta> contaEncontrada = contaRepository.findById(id);
+
+        //Se o objeto existir vamos colocar dentro de conta.
+        if(contaEncontrada.isPresent()){
+
+            //Tira conta dentro de Optional.
+            //Objeto conta é pego e colocado dentro de conta
+            Conta conta = contaEncontrada.get();
+
+            //novosDados é o parametro recebido via JSON pelo cliente.
+            //Leia: Pegue os NovosDados e altere o nome, titular e saldo.
+            conta.setNomeConta(novosDados.getNomeConta());
+            conta.setTitular(novosDados.getTitular());
+            conta.setSaldo(novosDados.getSaldo());
+
+            //Agora retorne e salve no banco essa atualizacao
+            return contaRepository.save(conta);
+        }
+    return null;
+
+
+
 
 
         /*for (Conta i : contas) {
@@ -78,10 +107,27 @@ public class ContaService {
     }
 
     //Delete - Delete --> Deletar uma conta da lista contas
-    public Conta deletarConta(long id) {
+    //Metodo é do tipo Optional (Ve se existe pelo id ou não)
+    public Optional<Conta> deletarConta(Long id) {
 
-        return contaRepository.deletar(id);
+        //A conta encontrada correspondente ao ID vai ser posta aqui.
+        Optional<Conta> contaEncontrada = contaRepository.findById(id);
 
+        //Verificamos se existe a conta
+        if(contaEncontrada.isPresent()){
+
+            //Se existir colocamos o objeto dentro de conta
+            Conta conta = contaEncontrada.get();
+
+            //Deletamos o objeto do banco
+            contaRepository.delete(conta);
+
+            //Retornamos pra controller a conta que foi deletada
+            return contaEncontrada;
+
+        }
+        //
+        return Optional.empty();
 
         /*//Percorrendo a lista de compras pelos indices
         //

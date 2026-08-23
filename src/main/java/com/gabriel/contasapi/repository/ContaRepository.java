@@ -1,15 +1,25 @@
 package com.gabriel.contasapi.repository;
 
 import com.gabriel.contasapi.model.Conta;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Repository // Annotations que define essa classe como um Repository
 //Classe responsável por acessar os dados.
-public class ContaRepository {
 
+//Conta repositore agora vira interface
+
+//Agora meu Repositorio trabalha com ENTIDADES do tipo Conta, cujo Id é Long. --> JpaRepository
+public interface ContaRepository extends JpaRepository<Conta, Long> {
+
+    //SpringData JPA agora vai abstrair nossos metodos do crude.
+
+
+
+
+    /*
+    Primeira versão da API, quando a repository ainda manipulava os dados e armazenava em um arraylist.
+    =====================================================================================================
     //Lista de contas
     //Atributo da ContaRepository -> memoria que guarda as contas
     private List<Conta> contas = new ArrayList<>();
@@ -70,5 +80,7 @@ public class ContaRepository {
         }
         return null;
     }
+    =======================================================================================================
+     */
 
 }

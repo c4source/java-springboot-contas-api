@@ -5,7 +5,7 @@ import com.gabriel.contasapi.model.Conta;
 import com.gabriel.contasapi.service.ContaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.Optional;
 import java.util.List;
 
 @RestController //Marca a classe como uma CONTROLLER | @RestController: annotation
@@ -14,7 +14,7 @@ public class ContaController {
 
     //private List<Conta> contas = new ArrayList<>(); // É um atributo do Controller que possibilita o get e post trabalhar na lista
 
-    // Criando a dependencia
+    //Criando a dependencia
     //ContaController precisa de ContaService
     //Espring vai fornercer o objeto
     private final ContaService contaService;
@@ -66,37 +66,36 @@ public class ContaController {
 
     @GetMapping("/{id}")
     //Nova Assinatura: ResponseEntity<> --> Esse metodo retorna uma resposta HTTP que pode carregar uma Conta
-    public ResponseEntity<Conta> buscarId(@PathVariable long id) {
+    public ResponseEntity<Conta> buscarId(@PathVariable Long id) {
 
-        Conta conta = contaService.buscarPorId(id);
+        Optional<Conta> conta = contaService.buscarPorId(id);
 
-        if (conta != null) {
-            return ResponseEntity.ok(conta);
-
+        if (conta.isPresent()) {
+            return ResponseEntity.ok(conta.get()); //Se achar responde 200, e pegue a Conta q esta ai dentro
         }
         return ResponseEntity.notFound().build(); //senao achar o id devolva uma notFound 404 sem objeto no corpo
     }
 
     //Atualizar (Update) dados que vem em json, é convertido para objeto e é alterado os valores do objeto.
     @PutMapping("/{id}")
-    public ResponseEntity<Conta> atualizarDados(@PathVariable long id, @RequestBody Conta conta) { //ParthVariable Recebe dados da URL ex (id)
+    public ResponseEntity<Conta> atualizarDados(@PathVariable Long id, @RequestBody Conta conta) { //ParthVariable Recebe dados da URL ex (id)
 
         Conta contaAtualizada = contaService.atualizar(id, conta);
 
         if (contaAtualizada != null) {
-            return ResponseEntity.ok(conta); //Se for encontrado retorne 200 Atraves da anotacao ResponseEntity
+            return ResponseEntity.ok(contaAtualizada); //Se for encontrado retorne 200 Atraves da anotacao ResponseEntity
         }
         return ResponseEntity.notFound().build(); // Senao responda 404 notfound.
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Conta> deletarConta(@PathVariable long id) {
+    public ResponseEntity<Conta> deletarConta(@PathVariable Long id) {
 
-        Conta contaDeletada = contaService.deletarConta(id);
+        Optional<Conta> contaDeletada = contaService.deletarConta(id);
 
         if(contaDeletada != null) {
-            return ResponseEntity.ok(contaDeletada);
+            return ResponseEntity.ok(contaDeletada.get());
         }
         return ResponseEntity.notFound().build();
 
